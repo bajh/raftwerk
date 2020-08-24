@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+option go_package = "raft_2020_06/raft/transport";
+
+package raft;
+
+service Raft {
+    rpc RequestVote (VoteRequest) returns (VoteReply) {}
+    rpc AppendEntries (AppendRequest) returns (AppendReply) {}
+    rpc AddPeer (AddPeerRequest) returns (AddPeerReply) {}
+}
+
+service KeyValStore {
+    rpc Get (GetRequest) returns (GetReply) {}
+    rpc Set (SetRequest) returns (SetReply) {}
+    rpc Delete (DeleteRequest) returns (DeleteReply) {}
+}
+
+message AddPeerRequest {
+    string i_d = 1;
+    string host = 2;
+}
+
+message AddPeerReply {}
+
+message VoteRequest {
+    int64 term = 1;
+    string candidate_id = 2;
+    int64 last_log_index = 3;
+    int64 last_log_term = 4;
+}
+
+message VoteReply {
+    int64 term = 1;
+    bool vote_granted = 2;
+}
+
+message AppendRequest {
+    int64 term = 1;
+    string leader_id = 3;
+    int64 prev_log_index = 4;
+    int64 prev_log_term = 5;
+    repeated Entry entries = 6;
+    int64 leader_commit = 7;
+}
+
+message Entry {
+    oneof entry {
+        SetOp set_op = 1;
+        DeleteOp delete_op = 2;
+    }
+    int64 term = 3;
+    int64 index = 4;
+}
+
+message SetOp {
+    string key = 1;
+    string val = 2;
+}
+
+message DeleteOp {
+    string key = 1;
+}
+
+message AppendReply {
+    int64 term = 1;
+    bool success = 2;
+}
+
+message SetRequest {
+    string key = 1;
+    string val = 2;
+}
+
+message SetReply {}
+
+message GetRequest {
+    string key = 1;
+}
+
+message GetReply {
+    string val = 1;
+}
+
+message DeleteRequest {
+    string key = 1;
+}
+
+message DeleteReply {}
